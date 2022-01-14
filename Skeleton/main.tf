@@ -41,13 +41,13 @@ resource "aws_default_route_table" "main-rtb" {
 resource "aws_security_group" "allow_ssh" {
     name = "Acesso SSH"
     description = "Permitir acesso SSH na maquina"
-    vpc_id = aws_vpc.vpc_externo.id
+    vpc_id = aws_vpc.vpc_teste.id
 
     ingress  {
         
         description      = "SSH para maquina de teste"
-        from_port        = 21
-        to_port          = 21
+        from_port        = 22
+        to_port          = 22
         protocol         = "tcp"
         cidr_blocks      = ["0.0.0.0/0"]
        
@@ -74,9 +74,14 @@ resource "aws_instance" "linux_teste" {
     instance_type = var.instance_type
     subnet_id = aws_subnet.Public_Subnet.id
     availability_zone = var.avail_zone
-    key_name = "Backstage_test"
-    vpc_security_group_ids = [aws_security_group.allow_rdp.id]
+    key_name = "backstage_test"
+    associate_public_ip_address = true
+    vpc_security_group_ids = [aws_security_group.allow_ssh.id]
     tags  = {
         Name = "${var.env_prefix}-backstage"
     }
+}
+
+output "ip" {
+    value = "IP para acessar a EC2 '${aws_instance.linux_teste.public_ip}'"
 }
